@@ -1,0 +1,6 @@
+build/
+*.zip
+*.png
+.DS_Store
+References/*
+!References/Stats-LICENSE
