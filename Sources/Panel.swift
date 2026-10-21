@@ -1,6 +1,10 @@
 import SwiftUI
 
 struct ThermalPanel: View {
+    private static let applicationIcon: NSImage? = {
+        guard let path = Bundle.main.path(forResource: "AppIcon", ofType: "png") else { return nil }
+        return NSImage(contentsOfFile: path)
+    }()
     @ObservedObject var monitor: Monitor
     @State private var showSensors = false
     private let accent = Color(red: 0.08, green: 0.51, blue: 0.55)
@@ -49,8 +53,12 @@ struct ThermalPanel: View {
 
     private var header: some View {
         HStack(spacing: 11) {
-            Image(systemName: "fanblades.fill").font(.system(size: 25)).foregroundStyle(accent)
-                .frame(width: 44, height: 44).background(accent.opacity(0.09), in: RoundedRectangle(cornerRadius: 13))
+            if let icon = Self.applicationIcon {
+                Image(nsImage: icon).resizable().interpolation(.high).scaledToFit().frame(width: 48, height: 48)
+            } else {
+                Image(systemName: "fanblades.fill").font(.system(size: 25)).foregroundStyle(accent)
+                    .frame(width: 44, height: 44).background(accent.opacity(0.09), in: RoundedRectangle(cornerRadius: 13))
+            }
             VStack(alignment: .leading, spacing: 3) {
                 Text("MiniThermal").font(.system(size: 18, weight: .semibold))
                 Text("Mac mini · Apple M4").font(.system(size: 11)).foregroundStyle(.secondary)

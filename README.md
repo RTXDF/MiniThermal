@@ -2,6 +2,8 @@
 
 为 **M4 Mac mini（Mac16,10）**制作的中文菜单栏小插件。打开后，右上角菜单栏会出现风扇图标和芯片最高温度。当前调速组件仅支持这一机型，尚未验证其他 Mac。
 
+<p align="center"><img src="Assets/AppIcon.png" width="160" alt="MiniThermal 应用图标：青绿色底上的风扇与温度计"></p>
+
 ## 安装
 
 从本仓库的 Releases 下载 `MiniThermal.zip`，解压后将 `MiniThermal.app` 放入 `~/Applications`，然后打开。也可以按下方说明从源码构建。

@@ -1,6 +1,7 @@
 build/
 *.zip
 *.png
+!Assets/AppIcon.png
 .DS_Store
 References/*
 !References/Stats-LICENSE
