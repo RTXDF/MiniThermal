@@ -10,6 +10,8 @@
 
 从本仓库的 Releases 下载 `MiniThermal.zip`，解压后将 `MiniThermal.app` 放入 `~/Applications`，然后打开。也可以按下方说明从源码构建。
 
+v1.0.4 使用新的应用标识来修复聚焦搜索中的占位图标。从 v1.0.3 或更早版本升级时，先在旧版关闭「登录时启动」并退出，再替换应用；需要时在新版重新开启。
+
 应用使用本地临时签名，未经过 Developer ID 签名与 Apple 公证。真实温度读取已在 M4 Mac mini 上验证；手动调速的真实硬件写入仍需要管理员授权后验证，详见 [验证记录](VALIDATION.md)。
 
 ## 使用
@@ -36,7 +38,7 @@
 
 ## 构建与检查
 
-需要 macOS 14+、Apple Silicon 与 Xcode Command Line Tools。运行 `zsh scripts/build.sh` 会生成 `build/MiniThermal.app`。源码使用本地临时签名；分发给其他电脑时应使用自己的 Developer ID 签名与公证。
+需要 macOS 14+、Apple Silicon 与完整 Xcode（图标资源使用 actool 编译）。运行 `zsh scripts/build.sh` 会生成 `build/MiniThermal.app`，并验证系统能从图标资源目录加载声明的应用图标。源码使用本地临时签名；分发给其他电脑时应使用自己的 Developer ID 签名与公证。
 
 `zsh scripts/test.sh` 验证编码、范围检查、M4 解锁流程、温控、传感器失效、客户端断开、组件强制终止、心跳过期和自动恢复。测试使用模拟硬件，**不会修改真实风扇**。
 

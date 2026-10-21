@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
+import ServiceManagement
 import Darwin
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -39,6 +40,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 @main enum MiniThermalMain {
     static func main() {
+        if CommandLine.arguments.contains("--login-item-status") {
+            print(SMAppService.mainApp.status.rawValue)
+            exit(0)
+        }
+        if CommandLine.arguments.contains("--enable-login-item") || CommandLine.arguments.contains("--disable-login-item") {
+            do {
+                if CommandLine.arguments.contains("--enable-login-item") { try SMAppService.mainApp.register() }
+                else { try SMAppService.mainApp.unregister() }
+                print(SMAppService.mainApp.status.rawValue)
+                exit(0)
+            } catch { fputs("\(error.localizedDescription)\n", stderr); exit(1) }
+        }
         if CommandLine.arguments.contains("--diagnose") {
             let snapshot = SMCReader().snapshot()
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]; encoder.dateEncodingStrategy = .iso8601
