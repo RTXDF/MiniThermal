@@ -1,49 +1,113 @@
 # MiniThermal
 
-为 **M4 Mac mini（Mac16,10）**制作的中文菜单栏小插件。打开后，右上角菜单栏会出现风扇图标和芯片最高温度。当前调速组件仅支持这一机型，尚未验证其他 Mac。
+English · [简体中文](README.zh-CN.md)
 
-<p align="center"><img src="Assets/AppIcon.png" width="160" alt="MiniThermal 扁平应用图标：青绿色底、白色风扇和橙色圆心"></p>
+A native macOS menu bar utility for temperature monitoring and experimental fan control on the **M4 Mac mini (Mac16,10)**. Built with Swift, SwiftUI, AppKit and a small C interface to AppleSMC. The current app interface is in Simplified Chinese.
 
-应用列表使用扁平图标，插件面板保留原来的简洁风扇符号。矢量原图与设计说明见 [Assets/ICON_DESIGN.md](Assets/ICON_DESIGN.md)。
+<p align="center"><img src="Assets/AppIcon.png" width="160" alt="MiniThermal: a flat teal icon with white fan blades and an orange center"></p>
 
-## 安装
+[Download](https://github.com/RTXDF/MiniThermal/releases/latest) · [Report an issue](https://github.com/RTXDF/MiniThermal/issues) · [Contribute](CONTRIBUTING.md) · [MIT license](LICENSE)
 
-从本仓库的 Releases 下载 `MiniThermal.zip`，解压后将 `MiniThermal.app` 放入 `~/Applications`，然后打开。也可以按下方说明从源码构建。
+## What it does
 
-v1.0.4 使用新的应用标识来修复聚焦搜索中的占位图标。从 v1.0.3 或更早版本升级时，先在旧版关闭「登录时启动」并退出，再替换应用；需要时在新版重新开启。
+- Shows the highest identified CPU and GPU sensor temperatures, actual fan speed, and a two-minute temperature history.
+- Reads the firmware's fan-speed limits and offers a target RPM slider after administrator authorization.
+- Provides a return-to-system-automatic action, temperature-dependent minimum speeds, and a separate recovery process for helper failures.
+- Supports login at startup, an expandable sensor list, and CSV export of the current readings.
 
-应用使用本地临时签名，未经过 Developer ID 签名与 Apple 公证。真实温度读取已在 M4 Mac mini 上验证；手动调速的真实硬件写入仍需要管理员授权后验证，详见 [验证记录](VALIDATION.md)。
+Temperature and RPM readings are obtained locally. Monitoring requires no administrator authorization. Manual control uses a temporary privileged helper started through the macOS authorization dialog; the app does not collect or store the administrator password.
 
-## 使用
+## Compatibility and validation
 
-1. 打开 `~/Applications/MiniThermal.app`，点击菜单栏风扇图标。
-2. CPU / GPU 卡片显示已识别传感器中的最高温度；下方显示实际风扇转速、固件转速范围与最近两分钟的温度变化。
-3. 点击「启用调速…」，在 **macOS 系统授权窗口**中输入管理员密码。插件不收集或保存密码。
-4. 拖动滑块，点击「应用转速」。点击「恢复系统自动」即可交还给 macOS。
-5. 可以开启「登录时启动」，展开温度传感器列表，或导出当前读数 CSV。
+| Item | Current status |
+| --- | --- |
+| Target hardware | M4 Mac mini, model identifier `Mac16,10` |
+| Deployment target | macOS 14 or later, Apple Silicon |
+| Recorded on-device testing | M4 Mac mini on macOS 27.0.1 |
+| Temperature and RPM reads | Verified on the target machine |
+| Automated coverage | 74 simulated SMC checks, plus instance-lock checks |
+| Privileged writes and sleep/wake recovery | Full on-device validation remains pending |
+| Other Mac models | Unsupported; the control helper rejects other model identifiers |
 
-本机固件报告的风扇范围为 **1000–4900 RPM**。数值从硬件读取，不是写死的。手动设置仅在本次应用会话中生效；重新打开应用后不会自动恢复之前的手动转速。
+**Manual fan control is experimental.** Simulated checks do not establish firmware behavior or reliable recovery on real hardware. The project records what was tested and what remains unverified in [VALIDATION.md](VALIDATION.md) (Chinese). The deployment target is not a claim that every macOS release or Apple Silicon model has been tested.
 
-## 温控行为
+## Install
 
-- 请求值必须处于固件给出的上下限内。
-- 芯片最高温度超过 50°C 时，保护程序逐渐提高允许的最低转速；到 80°C 时要求固件最大转速。界面显示实际生效的目标，可能高于滑块请求值。
-- 到 95°C、CPU / GPU 温度读数不完整、系统接管风扇或系统报告严重热状态（critical）时，停止手动设置并尝试恢复系统自动控制。
-- 正常退出、电脑休眠、用户会话切换、通信中断、心跳失效时尝试恢复自动控制。单独的保护进程还会在调速组件被强制终止时尝试恢复。硬件写入失败时继续重试并报告错误。这些是应用层保护，无法保证断电、操作系统故障或两个保护进程同时被终止时的行为。
-- 读取无需管理员权限；写入由通过系统授权启动的临时辅助进程执行。没有安装系统启动守护程序，不需要关闭 SIP 或安装内核扩展。
+1. Download `MiniThermal.zip` from the [latest release](https://github.com/RTXDF/MiniThermal/releases/latest).
+2. Extract it and put `MiniThermal.app` in `~/Applications`.
+3. Open the app, then click the fan icon in the menu bar.
 
-「目标转速」与「实际转速」分别显示。风扇需要时间达到目标，固件也可能重新接管。失败会显示错误，不把写入请求当成成功调速。
+Published builds use a local ad hoc signature. They are not Developer ID signed or notarized, so macOS may block a downloaded build. Building from the inspectable source is also supported.
 
-只显示已识别的 M4 温度通道，避免把固件中同样以 T 开头的校准常数误当成物理温度。核心温度由多个通道的最高值计算，不是平均温度。参考键名与授权见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+When upgrading from v1.0.3 or earlier, turn off **登录时启动** (Launch at login) in the old version and quit it before replacing the app. Enable it again in the new version if needed. v1.0.4 changed the bundle identifier to fix a persistent Spotlight placeholder icon.
 
-## 构建与检查
+## Use
 
-需要 macOS 14+、Apple Silicon 与完整 Xcode（图标资源使用 actool 编译）。运行 `zsh scripts/build.sh` 会生成 `build/MiniThermal.app`，并验证系统能从图标资源目录加载声明的应用图标。源码使用本地临时签名；分发给其他电脑时应使用自己的 Developer ID 签名与公证。
+The menu bar displays the highest identified chip temperature. The panel separates the requested target from the actual fan speed.
 
-`zsh scripts/test.sh` 验证编码、范围检查、M4 解锁流程、温控、传感器失效、客户端断开、组件强制终止、心跳过期和自动恢复。测试使用模拟硬件，**不会修改真实风扇**。
+| App label | Action |
+| --- | --- |
+| 启用调速… | Enable fan control through the macOS administrator authorization dialog |
+| 应用转速 | Apply the selected RPM |
+| 恢复系统自动 | Return control to macOS |
+| 登录时启动 | Enable launch at login |
 
-`build/MiniThermal.app/Contents/MacOS/MiniThermal --diagnose` 输出本机真实温度与转速 JSON，仅执行读取。
+Firmware reported a range of **1000–4900 RPM** on the test machine; the app reads the range rather than assuming these values. Manual settings last only for the current app session and are not automatically reapplied after relaunch.
 
-## 卸载
+Only identified M4 temperature channels are displayed. CPU and GPU cards show the maximum reading in each group, not an average; this avoids treating unrelated calibration values as temperatures.
 
-先在插件中关闭「登录时启动」，然后点击「恢复系统自动」并退出，再删除 `~/Applications/MiniThermal.app`。源码项目也可直接删除。临时辅助进程会在退出后结束。
+## Control and recovery behavior
+
+- Requested RPM must be within the firmware's reported range.
+- Above 50°C, the helper progressively raises the permitted minimum RPM; at 80°C, it requires the firmware maximum. The effective target can therefore exceed the slider value.
+- At 95°C, missing CPU/GPU readings, firmware takeover, or a critical macOS thermal state, the app stops manual control and attempts to restore system automatic control.
+- App exit, sleep, user-session changes, client disconnection and expired heartbeats trigger restoration attempts. A separate guard process also attempts recovery if the helper is killed. Failed writes are retried and reported.
+
+These are application-level recovery mechanisms, not a guarantee against operating-system failure, power loss, or simultaneous termination of both helper processes. No persistent system daemon or kernel extension is installed, and SIP need not be disabled.
+
+## Build and check
+
+You need an Apple Silicon Mac, macOS 14 or later, Python 3, and full Xcode with its developer tools selected. The icon asset catalog is compiled with `actool`.
+
+```sh
+git clone https://github.com/RTXDF/MiniThermal.git
+cd MiniThermal
+zsh scripts/build.sh
+```
+
+The app is created at `build/MiniThermal.app`. The build compiles C with strict warnings, compiles Swift, packages both licenses, applies ad hoc signatures, and checks that the declared app icon can be loaded.
+
+Run the simulated checks:
+
+```sh
+zsh scripts/test.sh
+```
+
+The suite uses simulated hardware and does not modify the real fan. It covers numeric encoding, bounds, M4 mode handling, thermal behavior, sensor failure, client disconnect, helper termination, heartbeat expiration and restoration. Instance-lock checks cover startup, restart, duplicate prevention, legacy permissions and symlink rejection.
+
+For a read-only hardware report on a supported machine:
+
+```sh
+build/MiniThermal.app/Contents/MacOS/MiniThermal --diagnose
+```
+
+Review diagnostic output before posting it publicly. Report hardware model and macOS version alongside any compatibility claim.
+
+## Contribute and next steps
+
+Bug reports, documentation, translations and focused pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md). Near-term priorities are to:
+
+- Record controlled, on-device validation of privileged writes and sleep/wake recovery on the target M4 model.
+- Collect read-only evidence for other hardware before considering support for additional models.
+- Add English app localization and improve installation and release documentation.
+- Review the helper's authorization, IPC and recovery paths, with reproducible regression checks for changes.
+
+This is an early project. The roadmap describes planned work rather than completed validation or promised release dates.
+
+## Uninstall
+
+Turn off **登录时启动** (Launch at login), choose **恢复系统自动** (Return to system automatic), and quit. Then remove `~/Applications/MiniThermal.app`. The temporary helper processes terminate when the control session ends.
+
+## License and acknowledgments
+
+MiniThermal is licensed under the [MIT License](LICENSE), copyright 2026 RTXDF. Third-party notices are preserved in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), including the full [Stats MIT license](References/Stats-LICENSE), which is also packaged with the app. The current flat app icon has an editable [SVG source](Assets/AppIcon.svg) and a native rendering script; see [the design notes](Assets/ICON_DESIGN.md).

@@ -17,6 +17,7 @@ with open('build/icon-info.plist', 'rb') as generated:
 with open('build/MiniThermal.app/Contents/Info.plist', 'wb') as output:
     plistlib.dump(info, output)
 PY
+cp LICENSE build/MiniThermal.app/Contents/Resources/LICENSE
 cp References/Stats-LICENSE build/MiniThermal.app/Contents/Resources/Stats-LICENSE
 cp build/IconResources/Assets.car build/MiniThermal.app/Contents/Resources/Assets.car
 cp build/IconResources/MiniThermalIcon.icns build/MiniThermal.app/Contents/Resources/MiniThermalIcon.icns
