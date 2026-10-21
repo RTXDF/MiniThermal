@@ -68,8 +68,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         // Single instance, preserving the first process's control session.
         let lockPath = NSHomeDirectory() + "/Library/Caches/local.MiniThermal.lock"
-        let lock = open(lockPath, O_CREAT | O_RDWR, 0600)
-        guard lock >= 0 && flock(lock, LOCK_EX | LOCK_NB) == 0 else { exit(0) }
+        guard let lock = acquireInstanceLock(at: lockPath) else { exit(0) }
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
         let delegate = AppDelegate(); app.delegate = delegate
