@@ -3,10 +3,8 @@ set -eu
 project_dir="${0:A:h:h}"
 cd "$project_dir"
 source_icon="Assets/AppIcon.png"
-if [[ ! -f "$source_icon" ]]; then
-    print -u2 "缺少应用图标：$source_icon"
-    exit 1
-fi
+mkdir -p Assets
+xcrun swift scripts/render-flat-icon.swift "$source_icon" Assets/AppIcon.svg
 mkdir -p build/AppIcon.iconset
 for logical_size in 16 32 128 256 512; do
     sips -z "$logical_size" "$logical_size" "$source_icon" --out "build/AppIcon.iconset/icon_${logical_size}x${logical_size}.png" >/dev/null

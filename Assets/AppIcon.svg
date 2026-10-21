@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>MiniThermal flat application icon</title>
+  <rect x="100" y="100" width="824" height="824" rx="184" fill="#14828C"/>
+  <defs><path id="blade" d="M488 469 C443 424 414 384 430 338 C443 298 500 284 540 307 C583 332 589 385 560 424 L536 469 Z"/></defs>
+  <g fill="white">
+    <use href="#blade"/>
+    <use href="#blade" transform="rotate(90 512 512)"/>
+    <use href="#blade" transform="rotate(180 512 512)"/>
+    <use href="#blade" transform="rotate(270 512 512)"/>
+  </g>
+  <circle cx="512" cy="512" r="30" fill="#FA9947"/>
+</svg>
